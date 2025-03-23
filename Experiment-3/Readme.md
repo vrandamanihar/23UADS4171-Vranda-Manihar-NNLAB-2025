@@ -2,22 +2,18 @@ Objective
 Implement a three-layer neural network using only the TensorFlow library (without Keras) to classify MNIST handwritten digits. This implementation demonstrates both feed‑forward propagation and back‑propagation (training) using TensorFlow’s low‑level APIs.
 
 Description of the Model
-Input Layer:
-
-Accepts MNIST images, each flattened into a 784‑dimensional vector (28×28 pixels).
-Hidden Layer:
-
-Consists of 256 neurons.
-Uses a ReLU activation function to introduce non-linearity.
-Output Layer:
-
-Has 10 neurons (one for each digit, 0–9).
-Outputs raw logits, which are converted to probabilities using the softmax function.
-Training Approach:
-
-Loss Function: Cross‑entropy loss between predicted probabilities and true one‑hot labels.
-Optimizer: Adam optimizer is used to perform back‑propagation and update the weights and biases.
-Evaluation: The model prints training loss and accuracy for each epoch and reports final test accuracy.
+1.Tensorflow library provides interface to artificial neural network.
+2.The MNIST dataset is loaded.
+3.Feature engineering is done as normalization.
+4.An input layer with 784 neurons (flattened 28x28 images)
+5.Two hidden layers with 128 and 64 neurons, using Sigmoid activation function.
+6.An output layer with 10 neurons (corresponding to digit classes).
+7.Epoch: 20 is used.
+8.Epoch: If the model keeps improving, it is advisable to try a higher number of epochs. If the model stopped improving way before the final epoch, it is advisable to try a lower number of epochs.
+9.Batch size - 100
+10.Batch size refers to the number of samples used in one iteration.
+11.Optimization via Adam optimizer to minimize loss.
+12.Loss function: Softmax cross entropy is used
 
 Python Implementation
 in exp3.ipynb file
@@ -25,57 +21,44 @@ in exp3.ipynb file
 
 
 Description of Code
-Data Loading and Preparation:
 
-Loading: The MNIST dataset is loaded using tf.keras.datasets.mnist.load_data().
-Preprocessing: Images are reshaped from 28×28 to 784-dimensional vectors and normalized. Labels are converted to one-hot encoding.
-Placeholders:
+1.Load and Preprocess Data:
+Loads MNIST dataset (handwritten digits).
+Reshapes images (28×28 → 784 pixels).
+Normalizes pixel values (0-1 range).
+Converts labels to one-hot encoding.
 
-x_ph and y_ph are defined to feed input data (images) and true labels into the network.
-Network Architecture:
+2️.Initialize Model Parameters:
+Defines placeholders (X for input, y for labels).
+Initializes weights (W1, W2, W3) and biases (b1, b2, b3).
 
-Hidden Layer:
-Contains 256 neurons.
-Uses a weight matrix W1 and bias b1, with ReLU activation applied to the linear combination.
-Output Layer:
-Contains 10 neurons for the 10 classes.
-Uses a weight matrix W2 and bias b2 to produce logits.
-Feed‑Forward Process:
+3️.Forward Propagation:
+Layer 1: sigmoid(X * W1 + b1).
+Layer 2: sigmoid(layer1 * W2 + b2).
+Output Layer: layer2 * W3 + b3.
 
-Hidden Layer Computation:
-z1 = tf.matmul(x_ph, W1) + b1 computes the linear combination.
-a1 = tf.nn.relu(z1) applies ReLU activation.
-Output Layer Computation:
-logits = tf.matmul(a1, W2) + b2 produces raw outputs.
-predictions = tf.nn.softmax(logits) converts logits into probabilities.
-Loss and Back-Propagation:
+4️.Backpropagation & Optimization:
+Uses Softmax Cross-Entropy Loss.
+Optimizes weights using Adam Optimizer.
 
-The loss is calculated using cross‑entropy between the predicted probabilities and the true labels.
-The Adam optimizer automatically computes gradients and updates the weights and biases during training.
-Accuracy Metric:
+5️.Training the Model:
+Uses mini-batch gradient descent.
+Prints loss and accuracy at each epoch.
 
-The model's accuracy is computed by comparing the predicted class (via argmax) with the true class.
-Training Loop:
+6.Accuracy Metric
+argmax(logits, 1): Gets the predicted class.
+argmax(y, 1): Gets the actual class.
+equal(): Compares predicted vs actual class.
+reduce_mean(): Computes the accuracy.
 
-The network is trained for 10 epochs using mini‑batches of 100 samples.
-At the end of each epoch, the training loss and accuracy are printed.
-After training, the model's test accuracy is evaluated.
 Performance Evaluation
-Training Performance:
+The model achieves high accuracy (~99% on training and ~97% on test data).
+The performance is satisfactory for MNIST classification.
 
-During each epoch, the script prints the current training loss and accuracy.
-Test Performance:
-
-At the end of training, the model is evaluated on the test dataset, and the test accuracy is printed (typically around 97%–98% for a simple network on MNIST).
-Additional Metrics:
-
-While this script prints accuracy and loss, further evaluation (e.g., confusion matrix or loss curves) can be added with additional code if needed.
 
 My Comments
-Limitations:
-TF1-Style Code: The implementation uses TensorFlow 2.x in TF1 compatibility mode with placeholders and sessions. Although educational, modern TensorFlow code often uses Keras or eager execution for simplicity.
-Basic Model: The network is relatively simple. For more complex tasks, improvements like additional hidden layers, dropout, batch normalization, and more extensive hyperparameter tuning might be necessary.
-Scope for Improvement:
-Full Backpropagation with Keras: Consider migrating to Keras for a higher-level API that simplifies model building and training.
-Advanced Evaluation: Implementing a confusion matrix and plotting loss/accuracy curves would provide deeper insights into model performance.
-Regularization: Techniques such as dropout or L2 regularization can help prevent overfitting, especially on more complex datasets.
+Sigmoid activation is not ideal for deep networks due to the vanishing gradient problem, which slows down learning.
+This code uses TensorFlow 1.x style graph execution, which requires disabling eager execution.
+Improvements
+Use TensorFlow 2.x with Keras Functional API for modern implementation.
+Use of ReLu activation function for speeding up training and gradient flow.
