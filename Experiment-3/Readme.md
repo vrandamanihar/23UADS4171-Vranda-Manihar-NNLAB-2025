@@ -57,8 +57,9 @@ The performance is satisfactory for MNIST classification.
 
 
 My Comments
-Sigmoid activation is not ideal for deep networks due to the vanishing gradient problem, which slows down learning.
-This code uses TensorFlow 1.x style graph execution, which requires disabling eager execution.
-Improvements
-Use TensorFlow 2.x with Keras Functional API for modern implementation.
-Use of ReLu activation function for speeding up training and gradient flow.
+1. We have used sigmoid activation function in this which is slowing the learning.
+ 2. We have used disable eager execution function to use tensorflow 1.x(Older Version)
+
+ *Improvements--*
+ 1. We can use ReLu activation function for speeding up training and increasing model performance.
+ 2. We can use tensorflow newer version with Keras for easy implementation.
