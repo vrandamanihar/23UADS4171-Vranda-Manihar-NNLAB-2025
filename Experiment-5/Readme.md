@@ -22,10 +22,7 @@ Confusion Matrix: The model made errors in classifying similar clothing items, l
 Loss Curve: Adam showed faster convergence compared to SGD, and models with larger filters tended to overfit slightly.
 
 My Comments:
+
 Limitations:
-Training time increases significantly with larger filter sizes and higher regularization.
-The model does not include advanced data augmentation, which could improve generalization.
-Only basic hyperparameter tuning was done; techniques like grid search or Bayesian optimization could yield better results.
-The dataset contains visually similar categories, making classification inherently difficult.
-Testing on additional datasets would better assess the model’s robustness.
-Future improvements include adding dropout layers for better regularization, experimenting with different architectures like ResNet, and using automated hyperparameter tuning methods for optimization.
+1.Training time increases significantly with larger filter sizes and higher regularization.
+2. Onlt basic hyperparaemeter tuning was used. Bayesian classification would give better results.
