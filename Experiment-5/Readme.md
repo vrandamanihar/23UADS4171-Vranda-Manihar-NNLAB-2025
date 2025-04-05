@@ -22,6 +22,10 @@ Confusion Matrix: The model made errors in classifying similar clothing items, l
 Loss Curve: Adam showed faster convergence compared to SGD, and models with larger filters tended to overfit slightly.
 
 My Comments:
+Adam consistently outperforms SGD across all settings.
+
+Future Improvements:
+Consider adding Dropout(0.5) after dense layers to test regularization effects.
 
 Limitations:
 1.Training time increases significantly with larger filter sizes and higher regularization.
