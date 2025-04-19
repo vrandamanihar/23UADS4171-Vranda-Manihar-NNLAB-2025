@@ -1,42 +1,58 @@
+# yoga_model/model.py
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 class YogaCNN(nn.Module):
-    def __init__(self, num_classes=6, quality_classes=3):
-        super(YogaCNN, self).__init__()
+    def _init_(self, asana_classes=6, rating_classes=3):
+        super(YogaCNN, self)._init_()
 
-        self.conv1 = nn.Conv2d(3, 32, 3, padding=1)
-        self.conv2 = nn.Conv2d(32, 64, 3, padding=1)
-        self.conv3 = nn.Conv2d(64, 128, 3, padding=1)
+        # Convolutional layers
+        self.features = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=3, padding=1), # Input: (N, 3, 224, 224) -> Output: (N, 32, 224, 224)
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),     # Output: (N, 32, 112, 112)
 
-        self.pool = nn.MaxPool2d(2, 2)
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),# Output: (N, 64, 112, 112)
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2),     # Output: (N, 64, 56, 56)
 
-        # Automatically calculate the flatten size
-        self._to_linear = None
-        self._get_flattened_size()
+            nn.Conv2d(64, 128, kernel_size=3, padding=1),# Output: (N, 128, 56, 56)
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2)      # Output: (N, 128, 28, 28)
+        )
 
-        # Fully connected layers
-        self.fc = nn.Linear(self._to_linear, 256)
-        self.asana_classifier = nn.Linear(256, num_classes)
-        self.quality_classifier = nn.Linear(256, quality_classes)
+        # Calculate the flattened size dynamically or use the known value
+        # Known value: 128 channels * 28 height * 28 width = 100352
+        self.flattened_size = 128 * 28 * 28
 
-    def _get_flattened_size(self):
-        with torch.no_grad():
-            dummy_input = torch.zeros(1, 3, 224, 224)
-            x = self.pool(F.relu(self.conv1(dummy_input)))
-            x = self.pool(F.relu(self.conv2(x)))
-            x = self.pool(F.relu(self.conv3(x)))
-            self._to_linear = x.view(1, -1).shape[1]
+        self.flatten = nn.Flatten() # Flattens the output of features to (N, 100352)
+
+        # --- Corrected Linear Layers ---
+        # Input features must match the flattened_size
+        self.fc_asana = nn.Linear(self.flattened_size, asana_classes)
+        self.fc_rating = nn.Linear(self.flattened_size, rating_classes)
+
+        # --- Optional: Add more layers or dropout ---
+        # Example: Add another hidden layer and dropout
+        # self.fc1 = nn.Linear(self.flattened_size, 512)
+        # self.dropout = nn.Dropout(0.5)
+        # self.fc_asana = nn.Linear(512, asana_classes)
+        # self.fc_rating = nn.Linear(512, rating_classes)
+
 
     def forward(self, x):
-        x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
-        x = self.pool(F.relu(self.conv3(x)))
-        x = x.view(-1, self._to_linear)
-        x = F.relu(self.fc(x))
+        x = self.features(x)
+        x = self.flatten(x) # Shape: (N, 100352)
 
-        asana_output = self.asana_classifier(x)
-        quality_output = self.quality_classifier(x)
+        # --- Pass through corrected linear layers ---
+        asana_output = self.fc_asana(x)
+        rating_output = self.fc_rating(x)
 
-        return asana_output, quality_output
+        # --- If using optional extra layers: ---
+        # x = F.relu(self.fc1(x))
+        # x = self.dropout(x)
+        # asana_output = self.fc_asana(x)
+        # rating_output = self.fc_rating(x)
+
+        return asana_output,rating_output
